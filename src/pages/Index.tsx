@@ -128,7 +128,7 @@ const Index = () => {
                 <p className="text-gray-400 mb-4">
                   Connect with contributors, analysts, and visionaries from around the world
                 </p>
-                <Button variant="link" asClass className="p-0 text-orange-400">
+                <Button variant="link" asChild className="p-0 text-orange-400">
                   <Link to="/network" className="flex items-center">
                     Join Network <ArrowRight className="ml-1 h-4 w-4" />
                   </Link>
