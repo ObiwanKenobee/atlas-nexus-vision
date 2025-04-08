@@ -1,22 +1,23 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import MainLayout from '../layouts/MainLayout';
-import { mockUser, mockDashboardMetrics } from '../mockData';
+import { mockDashboardMetrics } from '../mockData';
 import DashboardCard from '../components/DashboardCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '../components/AuthProvider';
 
 const Dashboard = () => {
-  const [user] = useState(mockUser);
+  const { user } = useAuth();
 
   return (
-    <MainLayout user={user}>
+    <MainLayout requireAuth={true}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Dashboard
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Welcome back, {user.name}. Here's an overview of your Atlas IO ecosystem.
+            Welcome back, {user?.user_metadata?.full_name || user?.email || 'User'}. Here's an overview of your Atlas IO ecosystem.
           </p>
         </div>
         

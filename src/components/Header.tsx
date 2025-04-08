@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { User } from '../types';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,17 +11,17 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Link, useLocation } from "react-router-dom";
-import { LogIn, Menu } from 'lucide-react';
+import { LogIn, LogOut, Menu, Settings, User } from 'lucide-react';
+import { useAuth } from './AuthProvider';
 
 interface HeaderProps {
-  user?: User;
-  onLogin?: () => void;
-  onLogout?: () => void;
+  showHeader?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ showHeader = true }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const { user, signOut } = useAuth();
   
   const navigation = [
     { name: 'Dashboard', href: '/dashboard' },
@@ -37,6 +36,12 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  if (!showHeader) return null;
 
   return (
     <header className="border-b bg-white dark:bg-gray-900 sticky top-0 z-50">
@@ -62,7 +67,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
                 {item.name}
               </Link>
             ))}
-            {user?.role.name === "superadmin" && (
+            {user && (
               <Link 
                 to="/contribute"
                 className={`text-sm font-medium transition-colors ${
@@ -91,30 +96,35 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative w-10 h-10 rounded-full">
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={user.avatar} />
-                      <AvatarFallback className="bg-blue-500 text-white">{user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={user.user_metadata?.avatar_url} />
+                      <AvatarFallback className="bg-blue-500 text-white">
+                        {user.email?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>
-                    <div>{user.name}</div>
+                    <div>{user.user_metadata?.full_name || user.email}</div>
                     <div className="text-xs text-gray-500">{user.email}</div>
-                    <div className="mt-1 text-xs inline-block bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-full px-2 py-0.5">
-                      {user.role.name}
-                    </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/settings">Settings</Link>
+                    <Link to="/settings">
+                      <Settings className="w-4 h-4 mr-2" /> Settings
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="w-4 h-4 mr-2" /> Logout
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button onClick={onLogin}>
-                <LogIn className="w-4 h-4 mr-2" /> Login
+              <Button asChild>
+                <Link to="/auth">
+                  <LogIn className="w-4 h-4 mr-2" /> Login
+                </Link>
               </Button>
             )}
           </div>
@@ -139,7 +149,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
                 {item.name}
               </Link>
             ))}
-            {user?.role.name === "superadmin" && (
+            {user && (
               <Link
                 to="/contribute"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${

@@ -1,49 +1,32 @@
 
 import React from 'react';
 import Header from '../components/Header';
-import { User } from '../types';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '../components/AuthProvider'; 
+import { Navigate } from 'react-router-dom';
 
 interface MainLayoutProps {
   children: React.ReactNode;
-  user?: User;
   showHeader?: boolean;
   showFooter?: boolean;
+  requireAuth?: boolean;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ 
   children, 
-  user,
   showHeader = true,
-  showFooter = true 
+  showFooter = true,
+  requireAuth = false
 }) => {
-  const { toast } = useToast();
+  const { user, loading } = useAuth();
 
-  const handleLogin = () => {
-    toast({
-      title: "Login",
-      description: "Login functionality will be implemented soon.",
-      duration: 3000,
-    });
-  };
-
-  const handleLogout = () => {
-    toast({
-      title: "Logout",
-      description: "Logout functionality will be implemented soon.",
-      duration: 3000,
-    });
-  };
+  // If auth is required and user is not logged in, redirect to /auth
+  if (requireAuth && !loading && !user) {
+    return <Navigate to="/auth" />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-      {showHeader && (
-        <Header 
-          user={user} 
-          onLogin={handleLogin} 
-          onLogout={handleLogout} 
-        />
-      )}
+      {showHeader && <Header />}
       
       <main className="flex-grow">
         {children}
