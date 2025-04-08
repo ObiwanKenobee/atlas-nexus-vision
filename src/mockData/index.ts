@@ -1,118 +1,232 @@
 
-import { DataLayer, DataPoint, Region, Dashboard, DashboardMetric, CaseStudy } from "../types";
+import { User, DataLayer, DataPoint, Dashboard, DashboardMetric, CaseStudy, UserRole } from "../types";
 
+// Mock user data
+export const mockUser: User = {
+  id: "user-1",
+  name: "Jane Smith",
+  email: "jane.smith@atlas.io",
+  role: {
+    id: "role-1",
+    name: "analyst" // Changed from string to one of the allowed role types
+  },
+  avatar: "https://randomuser.me/api/portraits/women/44.jpg"
+};
+
+// Mock data layers
 export const mockDataLayers: DataLayer[] = [
   {
-    id: "economic-gdp",
-    name: "GDP Growth",
+    id: "layer-1",
+    name: "Economic Growth Rate",
     category: "economic",
     description: "Annual GDP growth rate by country",
     visible: true,
-    source: "World Bank (2023)",
-    lastUpdated: "2023-12-15"
+    source: "World Bank, 2023",
+    lastUpdated: "2023-10-15"
   },
   {
-    id: "cultural-languages",
-    name: "Language Diversity",
+    id: "layer-2",
+    name: "Cultural Heritage Sites",
     category: "cultural",
-    description: "Number of languages spoken by region",
+    description: "UNESCO World Heritage Sites",
     visible: false,
-    source: "UNESCO Cultural Index",
-    lastUpdated: "2023-10-22"
+    source: "UNESCO, 2023",
+    lastUpdated: "2023-09-20"
   },
   {
-    id: "ecological-forest",
-    name: "Forest Coverage",
+    id: "layer-3",
+    name: "Reforestation Efforts",
     category: "ecological",
-    description: "Percentage of land covered by forests",
-    visible: false,
-    source: "Global Forest Watch",
-    lastUpdated: "2024-01-30"
+    description: "Areas under active reforestation programs",
+    visible: true,
+    source: "Global Forest Watch, 2023",
+    lastUpdated: "2023-11-05"
   },
   {
-    id: "technological-connectivity",
-    name: "Internet Penetration",
+    id: "layer-4",
+    name: "Tech Innovation Hubs",
     category: "technological",
-    description: "Percentage of population with internet access",
-    visible: false,
-    source: "ITU (2023)",
-    lastUpdated: "2023-11-05"
+    description: "Emerging technology innovation centers",
+    visible: true,
+    source: "Startup Genome, 2023",
+    lastUpdated: "2023-10-30"
   }
 ];
 
+// Mock data points
 export const mockDataPoints: DataPoint[] = [
-  { id: "dp1", latitude: 36.8219, longitude: -1.2921, value: 5.6, label: "Nairobi", category: "economic", countryCode: "KE" },
-  { id: "dp2", latitude: 55.7558, longitude: 37.6173, value: 2.1, label: "Moscow", category: "economic", countryCode: "RU" },
-  { id: "dp3", latitude: -33.8688, longitude: 151.2093, value: 3.2, label: "Sydney", category: "economic", countryCode: "AU" },
-  { id: "dp4", latitude: 40.7128, longitude: -74.0060, value: 2.3, label: "New York", category: "economic", countryCode: "US" },
-  { id: "dp5", latitude: -1.2921, longitude: 36.8219, value: 78, label: "Nairobi", category: "technological", countryCode: "KE" },
-  { id: "dp6", latitude: 51.5074, longitude: -0.1278, value: 94, label: "London", category: "technological", countryCode: "GB" },
-  { id: "dp7", latitude: 35.6762, longitude: 139.6503, value: 91, label: "Tokyo", category: "technological", countryCode: "JP" },
-  { id: "dp8", latitude: 28.6139, longitude: 77.2090, value: 45, label: "Delhi", category: "technological", countryCode: "IN" }
+  // Economic Data Points
+  {
+    id: "point-1",
+    latitude: 37.7749,
+    longitude: -122.4194,
+    value: 4.5,
+    label: "San Francisco",
+    category: "economic",
+    countryCode: "US"
+  },
+  {
+    id: "point-2",
+    latitude: 51.5074,
+    longitude: -0.1278,
+    value: 2.1,
+    label: "London",
+    category: "economic",
+    countryCode: "GB"
+  },
+  {
+    id: "point-3",
+    latitude: 35.6762,
+    longitude: 139.6503,
+    value: 1.8,
+    label: "Tokyo",
+    category: "economic",
+    countryCode: "JP"
+  },
+  
+  // Cultural Data Points
+  {
+    id: "point-4",
+    latitude: 27.1751,
+    longitude: 78.0421,
+    value: 95,
+    label: "Taj Mahal",
+    category: "cultural",
+    countryCode: "IN"
+  },
+  {
+    id: "point-5",
+    latitude: 29.9792,
+    longitude: 31.1342,
+    value: 92,
+    label: "Great Pyramids",
+    category: "cultural",
+    countryCode: "EG"
+  },
+  
+  // Ecological Data Points
+  {
+    id: "point-6",
+    latitude: -0.1911,
+    longitude: 37.3188,
+    value: 78,
+    label: "Mt. Kenya Forest",
+    category: "ecological",
+    countryCode: "KE"
+  },
+  {
+    id: "point-7",
+    latitude: -3.0674,
+    longitude: 37.3556,
+    value: 85,
+    label: "Mt. Kilimanjaro",
+    category: "ecological",
+    countryCode: "TZ"
+  },
+  
+  // Technological Data Points
+  {
+    id: "point-8",
+    latitude: -1.2921,
+    longitude: 36.8219,
+    value: 65,
+    label: "Nairobi Tech Hub",
+    category: "technological",
+    countryCode: "KE"
+  },
+  {
+    id: "point-9",
+    latitude: -33.8688,
+    longitude: 151.2093,
+    value: 72,
+    label: "Sydney Tech Precinct",
+    category: "technological",
+    countryCode: "AU"
+  },
+  {
+    id: "point-10",
+    latitude: 1.3521,
+    longitude: 103.8198,
+    value: 88,
+    label: "Singapore AI Center",
+    category: "technological",
+    countryCode: "SG"
+  }
 ];
 
-export const mockRegions: Region[] = [
-  { id: "east-africa", name: "East Africa", code: "EA", bounds: [27.3, -12.1, 51.4, 12.8] },
-  { id: "western-europe", name: "Western Europe", code: "WE", bounds: [-10.5, 35.2, 25.3, 60.8] },
-  { id: "north-america", name: "North America", code: "NA", bounds: [-170.0, 15.0, -50.0, 70.0] },
-  { id: "southeast-asia", name: "Southeast Asia", code: "SEA", bounds: [92.0, -11.0, 142.0, 29.0] }
-];
-
+// Mock dashboard metrics
 export const mockDashboardMetrics: DashboardMetric[] = [
-  { id: "m1", title: "Global GDP Growth", value: 3.1, change: 0.4, timeframe: "YoY", type: "percentage", visualization: "line" },
-  { id: "m2", title: "Tech Innovation Index", value: 67.8, change: 5.2, timeframe: "YoY", type: "number", visualization: "bar" },
-  { id: "m3", title: "Climate Change Impact", value: -2.8, change: -0.7, timeframe: "YoY", type: "number", visualization: "line" },
-  { id: "m4", title: "Cultural Exchange Score", value: 72.3, change: 3.1, timeframe: "YoY", type: "number", visualization: "pie" }
+  {
+    id: "metric-1",
+    title: "Global Economic Growth",
+    value: 3.4,
+    change: 0.2,
+    timeframe: "YoY",
+    type: "percentage",
+    visualization: "line"
+  },
+  {
+    id: "metric-2",
+    title: "Cultural Preservation Index",
+    value: 72,
+    change: -1.5,
+    timeframe: "Last 5Y",
+    type: "number",
+    visualization: "bar"
+  },
+  {
+    id: "metric-3",
+    title: "Environmental Sustainability",
+    value: 64,
+    change: 4.2,
+    timeframe: "YoY",
+    type: "percentage",
+    visualization: "pie"
+  },
+  {
+    id: "metric-4",
+    title: "Tech Adoption Rate",
+    value: 56,
+    change: 12.3,
+    timeframe: "Last 3Y",
+    type: "percentage",
+    visualization: "line"
+  }
 ];
 
-export const mockDashboard: Dashboard = {
-  id: "global-overview",
-  title: "Global Atlas Overview",
-  description: "Key metrics and indicators from around the world",
-  metrics: mockDashboardMetrics,
-  lastUpdated: "2024-03-15"
-};
-
+// Mock case studies
 export const mockCaseStudies: CaseStudy[] = [
   {
-    id: "cs1",
-    title: "East African Technology Hub",
+    id: "case-1",
+    title: "Rwanda's Tech Revolution",
     region: "East Africa",
     industry: "Technology",
-    summary: "How Kenya became the Silicon Savannah of Africa",
-    content: "Kenya's journey to becoming a technology hub started in 2007 with the launch of M-PESA, revolutionizing mobile banking. This case study explores how government policy, education reform, and international investment created a thriving tech ecosystem.",
-    imageUrl: "https://placehold.co/600x400/1E3A8A/FFFFFF.png?text=Kenya+Tech+Hub",
-    tags: ["technology", "innovation", "africa"],
-    publishedDate: "2024-02-10"
+    summary: "How Rwanda leapfrogged traditional development stages to become a tech hub.",
+    content: "In just two decades, Rwanda has transformed from a war-torn nation to one of Africa's most promising tech hubs...",
+    imageUrl: "https://source.unsplash.com/random/800x600/?rwanda",
+    tags: ["Africa", "Technology", "Innovation"],
+    publishedDate: "2023-10-12"
   },
   {
-    id: "cs2",
-    title: "Regenerative Agriculture in Scandinavia",
-    region: "Northern Europe",
-    industry: "Agriculture",
-    summary: "Sustainable farming practices transforming food production",
-    content: "Nordic countries have pioneered regenerative farming techniques that increase yields while capturing carbon. This zero-to-one innovation combines traditional methods with cutting-edge technology.",
-    imageUrl: "https://placehold.co/600x400/166534/FFFFFF.png?text=Regenerative+Agriculture",
-    tags: ["agriculture", "sustainability", "innovation"],
-    publishedDate: "2024-01-15"
+    id: "case-2",
+    title: "Costa Rica's Ecological Recovery",
+    region: "Central America",
+    industry: "Conservation",
+    summary: "Costa Rica's journey from deforestation to becoming a global environmental leader.",
+    content: "In the 1980s, Costa Rica had one of the highest deforestation rates in Latin America...",
+    imageUrl: "https://source.unsplash.com/random/800x600/?costarica",
+    tags: ["Conservation", "Policy", "Sustainability"],
+    publishedDate: "2023-09-18"
   },
   {
-    id: "cs3",
-    title: "Singapore's Urban Water Management",
-    region: "Southeast Asia",
-    industry: "Urban Planning",
-    summary: "From water scarcity to self-sufficiency",
-    content: "Singapore transformed from a water-dependent city-state to a global leader in urban water management. This case study examines the policies, technologies, and cultural shifts that enabled this transition.",
-    imageUrl: "https://placehold.co/600x400/C2410C/FFFFFF.png?text=Singapore+Water",
-    tags: ["urban planning", "sustainability", "water"],
-    publishedDate: "2023-11-22"
+    id: "case-3",
+    title: "Estonia's Digital Society",
+    region: "Europe",
+    industry: "e-Governance",
+    summary: "How a small Baltic nation became the world's most advanced digital society.",
+    content: "After regaining independence in 1991, Estonia took a radical path toward digitization...",
+    imageUrl: "https://source.unsplash.com/random/800x600/?estonia",
+    tags: ["Digital", "Governance", "Innovation"],
+    publishedDate: "2023-08-24"
   }
 ];
-
-export const mockUser = {
-  id: "user1",
-  name: "Demo User",
-  email: "demo@atlasio.com",
-  role: { id: "role1", name: "analyst" },
-  avatar: "https://placehold.co/200x200/1E3A8A/FFFFFF.png?text=DU"
-};
