@@ -11,7 +11,8 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { LogIn } from 'lucide-react';
+import { Link, useLocation } from "react-router-dom";
+import { LogIn, Menu } from 'lucide-react';
 
 interface HeaderProps {
   user?: User;
@@ -20,32 +21,71 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Map', href: '/map' },
+    { name: 'Forecast', href: '/forecast' },
+    { name: 'Stories', href: '/stories' },
+    { name: 'Insights', href: '/insights' },
+    { name: 'Network', href: '/network' },
+    { name: 'About', href: '/about' },
+  ];
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
-    <header className="border-b bg-white dark:bg-gray-900">
+    <header className="border-b bg-white dark:bg-gray-900 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <div className="text-2xl font-bold bg-gradient-to-r from-atlas-blue to-atlas-green bg-clip-text text-transparent">
+            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-atlas-blue to-atlas-green bg-clip-text text-transparent">
               Atlas<span className="text-black dark:text-white">IO</span>
-            </div>
+            </Link>
           </div>
           
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="#" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors">
-              Dashboard
-            </a>
-            <a href="#" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors">
-              Map
-            </a>
-            <a href="#" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors">
-              Case Studies
-            </a>
-            <a href="#" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white transition-colors">
-              About
-            </a>
+          <nav className="hidden md:flex items-center space-x-6">
+            {navigation.map((item) => (
+              <Link 
+                key={item.name}
+                to={item.href}
+                className={`text-sm font-medium transition-colors ${
+                  isActive(item.href)
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white"
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+            {user?.role.name === "superadmin" && (
+              <Link 
+                to="/contribute"
+                className={`text-sm font-medium transition-colors ${
+                  isActive("/contribute")
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-white"
+                }`}
+              >
+                Contribute
+              </Link>
+            )}
           </nav>
           
-          <div>
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="md:hidden mr-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -65,8 +105,9 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings">Settings</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>
@@ -79,6 +120,41 @@ const Header: React.FC<HeaderProps> = ({ user, onLogin, onLogout }) => {
           </div>
         </div>
       </div>
+      
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white dark:bg-gray-800 border-t">
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  isActive(item.href)
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+            {user?.role.name === "superadmin" && (
+              <Link
+                to="/contribute"
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  isActive("/contribute")
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contribute
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };
