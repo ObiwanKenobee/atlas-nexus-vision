@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { DataLayer, DataPoint } from '../types';
 import { getCategoryColor, getPointSizeByValue, formatDataValue } from '../utils/mapUtils';
+import MapboxTokenInput from './MapboxTokenInput';
 
 interface MapViewProps {
   layers: DataLayer[];
@@ -15,85 +16,92 @@ const MapView: React.FC<MapViewProps> = ({ layers, dataPoints, onSelectPoint }) 
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  
-  // For production, you would use an environment variable for the token
-  // This is just a temporary approach for the demo
   const [mapboxToken, setMapboxToken] = useState<string>('');
   
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
-    
-    // Check local storage for token
+    // Check local storage for token on component mount
     const storedToken = localStorage.getItem('mapbox-token');
-    
     if (storedToken) {
-      initializeMap(storedToken);
       setMapboxToken(storedToken);
     }
   }, []);
 
+  useEffect(() => {
+    // Initialize map whenever the token changes
+    if (mapboxToken && mapContainer.current && !map.current) {
+      initializeMap(mapboxToken);
+    }
+  }, [mapboxToken]);
+
   const initializeMap = (token: string) => {
     if (!mapContainer.current) return;
     
-    mapboxgl.accessToken = token;
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
-      projection: 'globe',
-      zoom: 1.5,
-      center: [0, 20],
-      pitch: 45,
-    });
-
-    map.current.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
-    map.current.scrollZoom.disable();
-    map.current.dragRotate.enable();
-    
-    map.current.on('style.load', () => {
-      if (!map.current) return;
+    try {
+      mapboxgl.accessToken = token;
       
-      map.current.setFog({
-        'color': 'rgb(18, 40, 75)',
-        'high-color': 'rgb(36, 92, 223)',
-        'horizon-blend': 0.1,
-        'space-color': '#010b19',
-        'star-intensity': 0.6
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/dark-v11',
+        projection: 'globe',
+        zoom: 1.5,
+        center: [0, 20],
+        pitch: 45,
+      });
+
+      map.current.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+      map.current.scrollZoom.disable();
+      map.current.dragRotate.enable();
+      
+      map.current.on('style.load', () => {
+        if (!map.current) return;
+        
+        map.current.setFog({
+          'color': 'rgb(18, 40, 75)',
+          'high-color': 'rgb(36, 92, 223)',
+          'horizon-blend': 0.1,
+          'space-color': '#010b19',
+          'star-intensity': 0.6
+        });
+        
+        setMapLoaded(true);
       });
       
-      setMapLoaded(true);
-    });
-    
-    // Spin the globe
-    const secondsPerRevolution = 120;
-    const maxSpinZoom = 3;
-    
-    let userInteracting = false;
-    
-    function spinGlobe() {
-      if (!map.current || userInteracting) return;
+      // Spin the globe
+      const secondsPerRevolution = 120;
+      const maxSpinZoom = 3;
       
-      const zoom = map.current.getZoom();
-      if (zoom < maxSpinZoom) {
-        const distancePerSecond = 360 / secondsPerRevolution;
-        const center = map.current.getCenter();
-        center.lng -= distancePerSecond / 60;
-        map.current.easeTo({ center, duration: 1000, easing: (n) => n });
+      let userInteracting = false;
+      
+      function spinGlobe() {
+        if (!map.current || userInteracting) return;
+        
+        const zoom = map.current.getZoom();
+        if (zoom < maxSpinZoom) {
+          const distancePerSecond = 360 / secondsPerRevolution;
+          const center = map.current.getCenter();
+          center.lng -= distancePerSecond / 60;
+          map.current.easeTo({ center, duration: 1000, easing: (n) => n });
+        }
       }
+      
+      setInterval(spinGlobe, 1000);
+      
+      map.current.on('mousedown', () => {
+        userInteracting = true;
+      });
+      
+      map.current.on('mouseup', () => {
+        userInteracting = false;
+        setTimeout(() => {
+          spinGlobe();
+        }, 3000);
+      });
+    } catch (error) {
+      console.error("Error initializing map:", error);
+      // Clear token if it's invalid
+      localStorage.removeItem('mapbox-token');
+      setMapboxToken('');
     }
-    
-    setInterval(spinGlobe, 1000);
-    
-    map.current.on('mousedown', () => {
-      userInteracting = true;
-    });
-    
-    map.current.on('mouseup', () => {
-      userInteracting = false;
-      setTimeout(() => {
-        spinGlobe();
-      }, 3000);
-    });
   };
   
   // Update map when layers or data points change
@@ -183,37 +191,24 @@ const MapView: React.FC<MapViewProps> = ({ layers, dataPoints, onSelectPoint }) 
     });
   }, [layers, dataPoints, mapLoaded, onSelectPoint]);
 
+  // Clean up map when component unmounts
+  useEffect(() => {
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, []);
+
+  const handleTokenSet = (token: string) => {
+    setMapboxToken(token);
+    localStorage.setItem('mapbox-token', token);
+  };
+
   // Render token input if token not set
   if (!mapboxToken) {
-    return (
-      <div className="flex flex-col items-center justify-center p-10 bg-slate-100 rounded-lg min-h-[500px]">
-        <h3 className="mb-4 text-xl font-medium">MapBox Token Required</h3>
-        <p className="mb-6 text-sm text-gray-600 max-w-md text-center">
-          Atlas IO requires a Mapbox token to display the interactive globe. Visit 
-          <a href="https://mapbox.com/" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline mx-1">
-            Mapbox.com
-          </a>
-          to create a free account and get your public token.
-        </p>
-        <div className="flex w-full max-w-md">
-          <input 
-            type="text"
-            placeholder="Enter your Mapbox token"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={(e) => setMapboxToken(e.target.value)}
-          />
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 transition duration-200"
-            onClick={() => {
-              localStorage.setItem('mapbox-token', mapboxToken);
-              initializeMap(mapboxToken);
-            }}
-          >
-            Set Token
-          </button>
-        </div>
-      </div>
-    );
+    return <MapboxTokenInput onTokenSet={handleTokenSet} />;
   }
 
   return (
